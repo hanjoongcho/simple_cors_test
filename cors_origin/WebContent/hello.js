@@ -58,7 +58,7 @@ function verify() {
 
 function test1() {
 	$.ajax({
-        url: 'http://localhost:9000/test.jsp',
+        url: 'http://localhost:9000/cors_origin/test.jsp',
         method: 'GET',
         success: function(data, textStatus, request){
         	console.log(request.getAllResponseHeaders());
@@ -75,7 +75,7 @@ function test1() {
 
 function test2() {
 	$.ajax({
-        url: 'http://localhost:9001/test.jsp',
+        url: 'http://localhost:9001/cors_cross/test.jsp',
         method: 'GET',
         success: function(data, textStatus, request){
         	console.log(request.getAllResponseHeaders());
