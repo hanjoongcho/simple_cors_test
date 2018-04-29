@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello CORS</title>
+        <meta charset="UTF-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="hello.js"></script>
+    </head>
+	<h2>test web console http://localhost:9000</h2>
+	<h2>cross domain api-gateway http://localhost:8080</h2>
+	<h2>cross domain auth-center http://localhost:8081</h2>
+	<h2>cross domain backend-service http://localhost:8082</h2>
+    <body>
+        <button onclick="sendData();">토큰발급요청</button>
+        <input type="text" id="token"><br />
+        <button onclick="verify();">인증페이지 호출</button>
+        <span id="result"></span><br />
+        
+    </body>
+</html>
