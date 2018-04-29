@@ -2,7 +2,7 @@
 <%@page import="java.text.MessageFormat"%>
 <%@ page language="java" contentType="application/json; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
-    String fname = MessageFormat.format( "test-{0,date,yyyyMMdd}.xsl", new Object [] { new Date() } );
+    //String fname = MessageFormat.format( "test-{0,date,yyyyMMdd}.xsl", new Object [] { new Date() } );
     //response.setHeader("Content-Disposition","attachment; filename=" + fname );
     //response.setHeader("Access-Control-Allow-Origin", "*");
     //response.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT");
