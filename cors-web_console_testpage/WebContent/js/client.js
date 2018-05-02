@@ -1,3 +1,4 @@
+var GATEWAY_IP = "http://localhost:8080";
 function removeLocalToken() {
 	localStorage.removeItem("jwtToken");
 }
@@ -147,21 +148,30 @@ $(function () {
 
     $("#logoutButton").click(doLogout);
 
-    $("#exampleServiceBtn").click(function () {
-        $.ajax({
-            url: "/persons",
+    $("#personalService").click(function () {
+    	callRestService("/personal/");
+    });
+    
+    $("#managerService").click(function () {
+    	callRestService("/manager/");
+    });
+    
+    function callRestService(path) {
+    	$.ajax({
+            url: GATEWAY_IP + path,
             type: "GET",
             contentType: "application/json; charset=utf-8",
-            dataType: "json",
+            dataType: "text",
             headers: createAuthorizationTokenHeader(),
             success: function (data, textStatus, jqXHR) {
-                showResponse(jqXHR.status, JSON.stringify(data));
+                showResponse(jqXHR.status, data);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 showResponse(jqXHR.status, errorThrown);
+                console.log(errorThrown);
             }
         });
-    });
+    }
 
     $("#adminServiceBtn").click(function () {
         $.ajax({
