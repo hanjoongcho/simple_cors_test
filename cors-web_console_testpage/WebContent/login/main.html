@@ -9,71 +9,106 @@
     src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script
     src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<link rel="stylesheet"
-    href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">    
 <style type="text/css">
 .col-sm-4 {
    flex: 49% !important;
    max-width: 49% !important;
 }
 </style>
+<script src="../js/libs/jwt-decode.min.js"></script>
 <script type="text/javascript">
     function login(type) {
         console.log(type);
-        $('#loginContainer').hide();
-        $('#mainContainer').show();
+        
+        var formData = {
+                phone: $('#typeAId').val(),
+                password: $('#typeAPass').val()
+            };
+        doLogin(formData);
     }
     
     function logout() {
         $('#loginContainer').show();
         $('#mainContainer').hide();
+        removeJwtToken();
     }
+    
+    function doLogin(loginData) {
+        $.ajax({
+            url: "http://localhost:8080/auth/personal",
+            type: "POST",
+            data: JSON.stringify(loginData),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                setJwtToken(data.token);
+                $('#loginContainer').hide();
+                $('#mainContainer').show();
+                showTokenInformation();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status === 401 || jqXHR.status === 403) {
+                    $('#loginErrorModal')
+                        .modal("show")
+                        .find(".modal-body")
+                        .empty()
+                        .html("<p>Message from server:<br>" + jqXHR.responseText + "</p>");
+                } else {
+                    throw new Error("an unexpected error occured: " + errorThrown);
+                }
+            }
+        });
+    }
+    
+    var TOKEN_KEY = "jwtToken"
+    function setJwtToken(token) {
+        localStorage.setItem(TOKEN_KEY, token);
+    }
+    
+    function showTokenInformation() {
+        var jwtToken = getJwtToken();
+        var decodedToken = jwt_decode(jwtToken);
+        console.log(decodedToken);
+/*
+        $loggedInBody.append($("<h4>").text("Token"));
+        $loggedInBody.append($("<div>").text(jwtToken).css("word-break", "break-all"));
+        $loggedInBody.append($("<h4>").text("Token claims"));
+
+        var $table = $("<table>")
+            .addClass("table table-striped");
+        appendKeyValue($table, "sub", decodedToken.sub);
+        appendKeyValue($table, "iat", decodedToken.iat);
+        appendKeyValue($table, "exp", decodedToken.exp);
+
+        $loggedInBody.append($table);
+
+        $loggedIn.show();
+*/
+    }
+    
+    function getJwtToken() {
+        return localStorage.getItem(TOKEN_KEY);
+    }
+    
+    function removeJwtToken() {
+        localStorage.removeItem(TOKEN_KEY);
+    }
+    
+    $(function () {
+    	if (getJwtToken()) {
+    		$('#loginContainer').hide();
+            $('#mainContainer').show();
+            showTokenInformation();
+        }
+    });
 </script>               
 </head>
 
-<div class="container" id="mainContainer" style="display: none;">
-    <div style="text-align: right; margin-top: 20px;">
-        <div class="form-group" style="width: 100px;display: inline-block;">
-            <button onclick="logout();return false;" class="btn btn-primary btn-block">Sign out</button>
-        </div>
-    </div>
-    
-    
-    <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">name</th>
-        <th scope="col">email</th>
-        <th scope="col">mobile</th>
-        <th scope="col">role</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th scope="row">1</th>
-        <td>personal</td>
-        <td>personal@gmail.com</td>
-        <td>01031207777</td>
-        <td>ROLE_PERSONAL</td>
-      </tr>
-      <tr>
-        <th scope="row">2</th>
-        <td>boss</td>
-        <td>boss@gmail.com</td>
-        <td>01031208888</td>
-        <td>ROLE_PERSONAL, ROLE_BOSS, ROLE_MANAGER, ROLE_EMPLOYEE</td>
-      </tr>
-      <tr>
-        <th scope="row">3</th>
-        <td>manager</td>
-        <td>manager@gmail.com</td>
-        <td>01031209999</td>
-        <td>ROLE_BOSS, ROLE_MANAGER, ROLE_EMPLOYEE</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+
 
 <div class="container" id="loginContainer">
     <article class="bg-secondary mb-3" style="margin-top: 50px;">
@@ -90,8 +125,7 @@
 
             <div class="card">
                 <article class="card-body">
-                    <h4 class="card-title text-center mb-4 mt-1">Sign
-                        in</h4>
+                    <h4 class="card-title text-center mb-4 mt-1">ROLE x 1</h4>
                     <hr>
                     <p class="text-success text-center">Some message
                         goes here</p>
@@ -103,9 +137,7 @@
                                         <i class="fa fa-user"></i>
                                     </span>
                                 </div>
-                                <input name="" class="form-control"
-                                    placeholder="Email or login"
-                                    type="email">
+                                <input id="typeAId" value="01031207777" name="" class="form-control" placeholder="Email or login" type="email">
                             </div>
                             <!-- input-group.// -->
                         </div>
@@ -117,16 +149,14 @@
                                         <i class="fa fa-lock"></i>
                                     </span>
                                 </div>
-                                <input class="form-control"
-                                    placeholder="******" type="password">
+                                <input id="typeAPass" value="password" class="form-control" placeholder="******" type="password">
                             </div>
                             <!-- input-group.// -->
                         </div>
                         <!-- form-group// -->
                         <div class="form-group">
                             <button onclick="login('TYPE_A');return false;"
-                                class="btn btn-primary btn-block">
-                                Login</button>
+                                class="btn btn-primary btn-block">Sing in</button>
                         </div>
                         <!-- form-group// -->
                         <p class="text-center">
@@ -146,8 +176,7 @@
 
             <div class="card">
                 <article class="card-body">
-                    <h4 class="card-title text-center mb-4 mt-1">Sign
-                        in</h4>
+                    <h4 class="card-title text-center mb-4 mt-1">ROLE x 2</h4>
                     <hr>
                     <p class="text-success text-center">Some message
                         goes here</p>
@@ -181,8 +210,7 @@
                         <!-- form-group// -->
                         <div class="form-group">
                             <button onclick="login('TYPE_B');return false;"
-                                class="btn btn-primary btn-block">
-                                로그인</button>
+                                class="btn btn-primary btn-block">Sign in</button>
                         </div>
                         <!-- form-group// -->
                         <p class="text-center">
@@ -201,3 +229,74 @@
 </div>
 <!--container end.//-->
 
+
+<div class="container" id="mainContainer" style="display: none;">
+    <div style="text-align: right; margin-top: 20px;">
+        <div class="form-group" style="width: 100px;display: inline-block;">
+            <button onclick="logout();return false;" class="btn btn-primary btn-block">Sign out</button>
+        </div>
+    </div>
+    <div class="alert alert-info" style="cursor: pointer;">
+        <strong>PERSONAL ROLE:</strong> Service 1
+    </div>
+    <div class="alert alert-info" style="cursor: pointer;">
+        <strong>PERSONAL ROLE:</strong> Service 2
+    </div>
+    <div class="alert alert-danger" style="cursor: pointer;">
+        <strong>BOSS ROLE: </strong> Service 1
+    </div>
+    <div class="alert alert-danger" style="cursor: pointer;">
+        <strong>BOSS ROLE: </strong> Service 2
+    </div>
+  
+    <div class="card" style="padding: 20px;">
+        <div class="container-fliud">
+            <div class="wrapper row">
+                <div class="preview col-md-6">
+                    
+                    <div class="preview-pic tab-content">
+                      <div class="tab-pane active" id="pic-1"><img src="http://placekitten.com/400/252" /></div>
+                      <div class="tab-pane" id="pic-2"><img src="http://placekitten.com/400/252" /></div>
+                      <div class="tab-pane" id="pic-3"><img src="http://placekitten.com/400/252" /></div>
+                      <div class="tab-pane" id="pic-4"><img src="http://placekitten.com/400/252" /></div>
+                      <div class="tab-pane" id="pic-5"><img src="http://placekitten.com/400/252" /></div>
+                    </div>
+                    
+                </div>
+                <div class="details col-md-6">
+                    <h3 class="product-title">men's shoes fashion</h3>
+                    <div class="rating">
+                        <div class="stars">
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                        </div>
+                        <span class="review-no">41 reviews</span>
+                    </div>
+                    <p class="product-description">Suspendisse quos? Tempus cras iure temporibus? Eu laudantium cubilia sem sem! Repudiandae et! Massa senectus enim minim sociosqu delectus posuere.</p>
+                    <h4 class="price">current price: <span>$180</span></h4>
+                    <p class="vote"><strong>91%</strong> of buyers enjoyed this product! <strong>(87 votes)</strong></p>
+                    <h5 class="sizes">sizes:
+                        <span class="size" data-toggle="tooltip" title="small">s</span>
+                        <span class="size" data-toggle="tooltip" title="medium">m</span>
+                        <span class="size" data-toggle="tooltip" title="large">l</span>
+                        <span class="size" data-toggle="tooltip" title="xtra large">xl</span>
+                    </h5>
+                    <h5 class="colors">colors:
+                        <span class="color orange not-available" data-toggle="tooltip" title="Not In store"></span>
+                        <span class="color green"></span>
+                        <span class="color blue"></span>
+                    </h5>
+                    <div class="action">
+                        <button class="add-to-cart btn btn-default" type="button">add to cart</button>
+                        <button class="like btn btn-default" type="button"><span class="fa fa-heart"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+  
+</div>
