@@ -156,6 +156,15 @@ $(function () {
     	callRestService("/manager/");
     });
     
+    
+    $("#restaService").click(function () {
+    	callRestService("/resta/where?id=4");
+    });
+    
+    $("#restbService").click(function () {
+    	callRestService("/restb/where?id=4");
+    });
+    
     function callRestService(path) {
     	$.ajax({
             url: GATEWAY_IP + path,
