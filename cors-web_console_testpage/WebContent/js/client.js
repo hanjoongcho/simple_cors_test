@@ -1,6 +1,7 @@
 var GATEWAY_IP = "http://localhost:8080";
 function removeLocalToken() {
 	localStorage.removeItem("jwtToken");
+	location.reload();
 }
 
 $(function () {
@@ -158,7 +159,7 @@ $(function () {
     
     
     $("#restaService").click(function () {
-    	callRestService("/resta/where?id=4");
+    	callRestService("/resta/where?id=" + $('#restaParam').val());
     });
     
     $("#restbService").click(function () {
